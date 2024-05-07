@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [articles, setArticles] = useState([]);
-  const [query, setQuery] = useState("");
 
   async function loadData(inputQuery) {
     const response = await fetch(
@@ -28,12 +27,16 @@ function App() {
   }
 
   useEffect(() => {
-    loadData(query).then(setArticles);
-  }, [query]);
+    loadData("").then(setArticles);
+  }, []);
+
+  const handleSearchChange = (newQuery) => {
+    loadData(newQuery).then(setArticles);
+  };
 
   return (
     <Container>
-      <NewsHeader onSearchChange={setQuery} />
+      <NewsHeader onSearchChange={handleSearchChange} />
       <NewsFeed articles={articles} />
     </Container>
   );
