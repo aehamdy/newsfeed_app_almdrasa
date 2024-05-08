@@ -1,4 +1,4 @@
-import { Container, Button } from "@mui/material";
+import { Container, Button, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import NewsHeader from "./components/NewsHeader";
 import NewsFeed from "./components/NewsFeed";
@@ -14,6 +14,7 @@ const Footer = styled("div")(({ theme }) => ({
 function App() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const pageNumber = useRef(1);
   const queryValue = useRef("");
 
@@ -29,6 +30,9 @@ function App() {
     );
 
     const data = await response.json();
+    if (data.status === "error") {
+      throw new Error("An error has occured");
+    }
     return data.articles.map((article) => {
       const { title, description, author, publishedAt, urlToImage } = article;
       return {
@@ -43,10 +47,17 @@ function App() {
 
   const fetchAndUpdateArticles = () => {
     setLoading(true);
-    loadData().then((newData) => {
-      setArticles(newData);
-      setLoading(false);
-    });
+    setError("");
+    loadData()
+      .then((newData) => {
+        setArticles(newData);
+      })
+      .catch((errorMessage) => {
+        setError(errorMessage);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const debouncedLoadData = debounce(fetchAndUpdateArticles, 500);
@@ -74,7 +85,13 @@ function App() {
   return (
     <Container>
       <NewsHeader onSearchChange={handleSearchChange} />
-      <NewsFeed articles={articles} loading={loading} />
+      {error.length === 0 ? (
+        <NewsFeed articles={articles} loading={loading} />
+      ) : (
+        <Typography color="error" align="center">
+          {error}
+        </Typography>
+      )}
       <Footer>
         <Button
           varian="outlined"
