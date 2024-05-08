@@ -17,11 +17,15 @@ function App() {
   const pageNumber = useRef(1);
   const queryValue = useRef("");
 
+  const PAGE_SIZE = 5;
+
   async function loadData() {
     const response = await fetch(
       `https://newsapi.org/v2/top-headlines?q=${queryValue.current}&page=${
         pageNumber.current
-      }&pageSize=5&country=eg&apiKey=${import.meta.env.VITE_NEWS_API_KEY}`
+      }&pageSize=${PAGE_SIZE}&country=eg&apiKey=${
+        import.meta.env.VITE_NEWS_API_KEY
+      }`
     );
 
     const data = await response.json();
@@ -72,10 +76,18 @@ function App() {
       <NewsHeader onSearchChange={handleSearchChange} />
       <NewsFeed articles={articles} loading={loading} />
       <Footer>
-        <Button varian="outlined" onClick={handlePreviousClick}>
+        <Button
+          varian="outlined"
+          onClick={handlePreviousClick}
+          disabled={pageNumber.current === 1}
+        >
           Previous
         </Button>
-        <Button varian="outlined" onClick={handleNextClick}>
+        <Button
+          varian="outlined"
+          onClick={handleNextClick}
+          disabled={articles.length < PAGE_SIZE}
+        >
           Next
         </Button>
       </Footer>
