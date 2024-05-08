@@ -15,16 +15,17 @@ function App() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [category, setCategory] = useState("general");
   const pageNumber = useRef(1);
   const queryValue = useRef("");
 
   const PAGE_SIZE = 5;
 
-  async function loadData() {
+  async function loadData(currentCategory) {
     const response = await fetch(
-      `https://newsapi.org/v2/top-headlines?q=${queryValue.current}&page=${
-        pageNumber.current
-      }&pageSize=${PAGE_SIZE}&country=eg&apiKey=${
+      `https://newsapi.org/v2/top-headlines?category=${currentCategory}&q=${
+        queryValue.current
+      }&page=${pageNumber.current}&pageSize=${PAGE_SIZE}&country=eg&apiKey=${
         import.meta.env.VITE_NEWS_API_KEY
       }`
     );
@@ -34,8 +35,10 @@ function App() {
       throw new Error("An error has occured");
     }
     return data.articles.map((article) => {
-      const { title, description, author, publishedAt, urlToImage } = article;
+      const { title, description, author, publishedAt, urlToImage, url } =
+        article;
       return {
+        url,
         title,
         description,
         author,
@@ -45,10 +48,10 @@ function App() {
     });
   }
 
-  const fetchAndUpdateArticles = () => {
+  const fetchAndUpdateArticles = (currentCategory) => {
     setLoading(true);
     setError("");
-    loadData()
+    loadData(currentCategory ?? category)
       .then((newData) => {
         setArticles(newData);
       })
@@ -82,9 +85,19 @@ function App() {
     fetchAndUpdateArticles();
   };
 
+  const handleCategoryChange = (event) => {
+    setCategory(event.target.value);
+    pageNumber.current = 1;
+    fetchAndUpdateArticles(event.target.value);
+  };
+
   return (
     <Container>
-      <NewsHeader onSearchChange={handleSearchChange} />
+      <NewsHeader
+        onSearchChange={handleSearchChange}
+        category={category}
+        onCategoryChange={handleCategoryChange}
+      />
       {error.length === 0 ? (
         <NewsFeed articles={articles} loading={loading} />
       ) : (
