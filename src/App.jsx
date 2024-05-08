@@ -96,14 +96,14 @@ function App() {
         <Button
           varian="outlined"
           onClick={handlePreviousClick}
-          disabled={pageNumber.current === 1}
+          disabled={loading || pageNumber.current === 1}
         >
           Previous
         </Button>
         <Button
           varian="outlined"
           onClick={handleNextClick}
-          disabled={articles.length < PAGE_SIZE}
+          disabled={loading || articles.length < PAGE_SIZE}
         >
           Next
         </Button>
